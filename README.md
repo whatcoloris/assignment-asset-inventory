@@ -10,7 +10,7 @@ They are looking to convert our system to store the content in a database.
 
 A typical card looks like this:
 
-'''
+```
 {
 Signed out to:  Sonny Sohnnson
 Location:       4-15C
@@ -20,7 +20,7 @@ Category:       Computer
 Description:    2020 iFruit Vaporware
 Purchased:      January 3, 2020
 }
-'''
+```
 
 ## DDL for the Table
 
