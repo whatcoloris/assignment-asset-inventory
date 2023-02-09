@@ -4,24 +4,7 @@
    </head>
    <body>
       <?php
-         $signed_out_to = $location = $phone = $device_id = $category = $description = $purchased = "";
-         
-         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $signed_out_to = test_input($_POST["Signed_Out_To"]);
-            $location = test_input($_POST["Location"]);
-            $phone = test_input($_POST["Phone"]);
-            $device_id = test_input($_POST["Device_ID"]);
-            $category = test_input($_POST["Category"]);
-            $description = test_input($_POST["Description"]);
-            $purchased = test_input($_POST["Purchased"]);
-         }
-         
-         function test_input($data) {
-            $data = trim($data);
-            $data = stripslashes($data);
-            $data = htmlspecialchars($data);
-            return $data;
-         }
+         session_start();
       ?>
       
       <form method="post">
@@ -61,24 +44,54 @@
             
             <tr>
                <td>Description:</td>
-               <td><textarea name="comment" rows="5" cols="40"></textarea></td>
+               <td><textarea name="description" rows="5" cols="40"></textarea></td>
             </tr>
 
             <tr>
-               <td>Purchased (year-month-day, ex 2023-01-01):</td>
+               <td>Purchased (ie 2023-01-01):</td>
                <td><input type="text" name="purchased"></td>
             </tr>
             
             <tr>
                <td>
-                  <input type="submit" name="submit" value="Submit"> 
+                  <input type="submit" name="submit" value="Add Asset"> 
+               </td>
+
+               <td>
+                  <input type="submit" name="clear" value="Clear JSON"> 
                </td>
             </tr>
          </table>
       </form>
-      
+
+
       <?php
-         var_dump()
+         $array = [];
+         $signed_out_to = $location = $phone = $device_id = $category = $description = $purchased = "";
+
+         if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if(array_key_exists('clear', $_POST)) {
+               session_unset();
+               $_SESSION["json"] = "";
+            } else {
+               $signed_out_to = $_POST["signed_out_to"];
+               $location = $_POST["location"];
+               $phone = $_POST["phone"];
+               $device_id = $_POST["device_id"];
+               $category = $_POST["category"];
+               $description = $_POST["description"];
+               $purchased = $_POST["purchased"];
+
+               $array = json_decode($_SESSION["json"]);
+               $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,"Purchased"=>$purchased);
+
+               $_SESSION["json"] = json_encode($array);
+            }
+         }
+      ?>
+
+      <?php
+         var_dump($_SESSION["json"]);
       ?>
       
    </body>
