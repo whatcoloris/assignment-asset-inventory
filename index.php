@@ -75,11 +75,11 @@
             <h1>Asset Inventory Form</h1>
          </div>
          <div class="row">
-            <h2 class="header">Add an Asset</h2>
             <form method="post" class="input-field">
                <table>
+                  <th><h2 class="header">Add an Asset</h2></th>
                   <tr>
-                     <td>Signed Out To:</td> 
+                     <td>Signed Out To:</td>
                      <td><input type="text" name="signed_out_to"></td>
                   </tr>
                   <tr>
@@ -128,19 +128,22 @@
 
          <?php
             function checkDeviceID($given_id) {
-               if (array_key_exists("json",$_SESSION)) {
+               echo "CHECKING DEVICE ID";
+               if (array_key_exists("json", $_SESSION)) {
                   $existing_assets = json_decode($_SESSION["json"], true);
                   if ($existing_assets != null) {
                      foreach ($existing_assets as $asset) {
                         if ($given_id == $asset["Device ID"]) {
+                           echo "THE ID IS ALREADY IN USE";
                            echo "<script>var recordDisplay = document.getElementById('modal-record');";
                            echo 'recordDisplay.innerHTML = "';
                            displayEntry($asset);
                            echo '";';
                            echo "</script>";
-                           break;
+                           return false;
                         }
                      }
+                     return true;
                   } else {
                      return true;
                   }
@@ -153,7 +156,8 @@
             $signed_out_to = $location = $phone = $device_id = $category = $description = $purchased = "";
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
-               if(array_key_exists("clear", $_POST)) {
+               if (array_key_exists("clear", $_POST)) {
+                  echo "CLEARING SESSION";
                   session_unset();
                   $_SESSION["json"] = "";
                } else {
@@ -166,11 +170,14 @@
                      $description = $_POST["description"];
                      $purchased = $_POST["purchased"];
 
-                     if (array_key_exists("json",$_SESSION)) {
+                     if (array_key_exists("json", $_SESSION)) {
+                        echo "WE HAVE A SESSION";
                         $array = json_decode($_SESSION["json"], true);
                      }
-                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,
-                                    "Description"=>$description,"Purchased"=>$purchased,"Time"=>time());
+
+                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,
+                                    "Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,
+                                    "Purchased"=>$purchased,"Time"=>time());
    
                      $_SESSION["json"] = json_encode($array);
                   }
@@ -182,6 +189,7 @@
             <h2>The last 5 entries</h2>
             <?php
                function displayEntry($content) {
+                  echo "INSIDE DISPLAY ENTRY";
                   echo "<div class='col s6 m4 l3'>";
                   echo "<h4>";
                   echo $content["Device ID"];
@@ -208,9 +216,6 @@
                                  break;
                               case '4':
                                  echo "other";
-                                 break;
-                              case default:
-                                 echo "unknown";
                                  break;
                            }
                            echo "</li>";
