@@ -1,5 +1,5 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
    <head>
       <title>Asset Inventory Form</title>
       <!-- Compiled and minified CSS -->
@@ -105,7 +105,7 @@
                               <option value="4">other</option>
                         </select>
                      </td>
-                  </tr>               
+                  </tr>
                   <tr>
                      <td>Description:</td>
                      <td><textarea name="description" rows="5" cols="40"></textarea></td>
@@ -113,13 +113,13 @@
                   <tr>
                      <td>Purchased:</td>
                      <td><input type="text" class="datepicker" name="purchased"></td>
-                  </tr>               
+                  </tr>
                   <tr>
                      <td>
-                        <input type="submit" name="submit" value="Add Asset" class="waves-effect btn purple white-text modal-trigger"> 
+                        <input type="submit" name="submit" value="Add Asset">
                      </td>
                      <td>
-                        <input type="submit" name="clear" value="Clear JSON" class="waves-effect btn purple white-text"> 
+                        <input type="submit" name="clear" value="Clear JSON">
                      </td>
                   </tr>
                </table>
@@ -169,8 +169,9 @@
                      if (array_key_exists("json",$_SESSION)) {
                         $array = json_decode($_SESSION["json"], true);
                      }
-                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,"Purchased"=>$purchased,"Time"=>time());
-
+                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,
+                                    "Description"=>$description,"Purchased"=>$purchased,"Time"=>time());
+   
                      $_SESSION["json"] = json_encode($array);
                   }
                }
@@ -208,6 +209,9 @@
                               case '4':
                                  echo "other";
                                  break;
+                              case default:
+                                 echo "unknown";
+                                 break;
                            }
                            echo "</li>";
                         } else {
@@ -223,7 +227,7 @@
                   echo "</div>";
                }
 
-               if (array_key_exists("json",$_SESSION) && $_SESSION["json"] != null) {
+               if (array_key_exists("json", $_SESSION) && $_SESSION["json"] != null) {
                   $array = json_decode($_SESSION["json"], true);
 
                   if (count($array)>4) {
@@ -243,7 +247,7 @@
          <div>
             <h3>Var Dump:</h3>
             <?php
-               if (array_key_exists("json",$_SESSION)) {
+               if (array_key_exists("json", $_SESSION)) {
                   var_dump($_SESSION["json"]);
                }
             ?>
