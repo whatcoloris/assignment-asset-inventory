@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <html>
    <head>
       <title>Asset Inventory Form</title>
@@ -8,26 +9,74 @@
       
       <script>
          document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.datepicker');
-            var instances = M.Datepicker.init(elems,{format:'yyyy-mm-dd'});
-         });
-
-         document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('select');
-            var instances = M.FormSelect.init(elems);
+            var dElems = document.querySelectorAll('.datepicker');
+            var dateInstances = M.Datepicker.init(dElems,{format:'yyyy-mm-dd'});
+            var sElems = document.querySelectorAll('select');
+            var selectInstances = M.FormSelect.init(sElems);
+            var mElems = document.querySelectorAll('#modal1.modal');
+            var modalInstances = M.Modal.init(mElems);
          });
       </script>
 
+      <style>
+         .input-field input:focus + label {
+            color: purple !important;
+         }
+         .row .input-field input:focus {
+            border-bottom: 1px solid purple !important;
+            box-shadow: 0 1px 0 0 purple !important
+         }
+         ul.dropdown-content.select-dropdown li span {
+            color: purple; /* no need for !important :) */
+         }
+         .datepicker-date-display {
+            background-color: purple;
+         }
+         .datepicker-table td.is-selected {
+            background-color: purple;
+         }
+         .datepicker-table td.is-today {
+            color: purple;
+         }
+         .datepicker-table td.is-selected.is-today {
+            background-color: purple;
+            color: white;
+         }
+         .datepicker-cancel {
+            color: purple;
+         }
+         .datepicker-done {
+            color: purple;
+         }
+         .header {
+            background: linear-gradient(to bottom, orange, yellow)
+         }
+      </style>
    </head>
    <body>
       <?php
          session_start();
       ?>
+
+      <div id="modal1" class="modal">
+         <div class="modal-content">
+            <h4>Duplicate Device ID Detected</h4>
+            <div id="modal-record"></div>
+            <p>Would you like to overwrite the existing record?</p>
+         </div>
+         <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-red btn-flat">No</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+         </div>
+      </div>
+
       <div class="container">
-         <h1 class="row">Asset Inventory Form</h1>
+         <div class="purple">
+            <h1>Asset Inventory Form</h1>
+         </div>
          <div class="row">
-            <h2>Add an Asset</h2>
-            <form method="post">
+            <h2 class="header">Add an Asset</h2>
+            <form method="post" class="input-field">
                <table>
                   <tr>
                      <td>Signed Out To:</td> 
@@ -62,15 +111,15 @@
                      <td><textarea name="description" rows="5" cols="40"></textarea></td>
                   </tr>
                   <tr>
-                     <td>Purchased (ie 2023-01-01):</td>
+                     <td>Purchased:</td>
                      <td><input type="text" class="datepicker" name="purchased"></td>
                   </tr>               
                   <tr>
                      <td>
-                        <input type="submit" name="submit" value="Add Asset"> 
+                        <input type="submit" name="submit" value="Add Asset" class="waves-effect btn purple white-text modal-trigger"> 
                      </td>
                      <td>
-                        <input type="submit" name="clear" value="Clear JSON"> 
+                        <input type="submit" name="clear" value="Clear JSON" class="waves-effect btn purple white-text"> 
                      </td>
                   </tr>
                </table>
@@ -78,6 +127,28 @@
          </div>
 
          <?php
+            function checkDeviceID($given_id) {
+               if (array_key_exists("json",$_SESSION)) {
+                  $existing_assets = json_decode($_SESSION["json"], true);
+                  if ($existing_assets != null) {
+                     foreach ($existing_assets as $asset) {
+                        if ($given_id == $asset["Device ID"]) {
+                           echo "<script>var recordDisplay = document.getElementById('modal-record');";
+                           echo 'recordDisplay.innerHTML = "';
+                           displayEntry($asset);
+                           echo '";';
+                           echo "</script>";
+                           break;
+                        }
+                     }
+                  } else {
+                     return true;
+                  }
+               } else {
+                  return true;
+               }
+            }
+
             $array = [];
             $signed_out_to = $location = $phone = $device_id = $category = $description = $purchased = "";
 
@@ -86,20 +157,22 @@
                   session_unset();
                   $_SESSION["json"] = "";
                } else {
-                  $signed_out_to = $_POST["signed_out_to"];
-                  $location = $_POST["location"];
-                  $phone = $_POST["phone"];
-                  $device_id = $_POST["device_id"];
-                  $category = $_POST["category"];
-                  $description = $_POST["description"];
-                  $purchased = $_POST["purchased"];
+                  if (checkDeviceID($_POST["device_id"])) {
+                     $signed_out_to = $_POST["signed_out_to"];
+                     $location = $_POST["location"];
+                     $phone = $_POST["phone"];
+                     $device_id = $_POST["device_id"];
+                     $category = $_POST["category"];
+                     $description = $_POST["description"];
+                     $purchased = $_POST["purchased"];
 
-                  if (array_key_exists("json",$_SESSION)) {
-                     $array = json_decode($_SESSION["json"]);
+                     if (array_key_exists("json",$_SESSION)) {
+                        $array = json_decode($_SESSION["json"], true);
+                     }
+                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,"Purchased"=>$purchased,"Time"=>time());
+
+                     $_SESSION["json"] = json_encode($array);
                   }
-                  $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,"Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,"Purchased"=>$purchased,"Time"=>time());
-
-                  $_SESSION["json"] = json_encode($array);
                }
             }
          ?>
@@ -108,7 +181,7 @@
             <h2>The last 5 entries</h2>
             <?php
                function displayEntry($content) {
-                  echo "<div class='row'>";
+                  echo "<div class='col s6 m4 l3'>";
                   echo "<h4>";
                   echo $content["Device ID"];
                   echo "</h4>";
@@ -162,6 +235,8 @@
                         displayEntry($asset);
                      }
                   }
+               } else {
+                  echo "No assets added yet.";
                }
             ?>
          </div>
