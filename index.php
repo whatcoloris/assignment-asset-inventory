@@ -7,17 +7,17 @@
       <!-- Compiled and minified JavaScript -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
       
+      <!-- Initialize the Materialize Javascript Objects -->
       <script>
          document.addEventListener('DOMContentLoaded', function() {
             var dElems = document.querySelectorAll('.datepicker');
             var dateInstances = M.Datepicker.init(dElems,{format:'yyyy-mm-dd'});
             var sElems = document.querySelectorAll('select');
             var selectInstances = M.FormSelect.init(sElems);
-            var mElems = document.querySelectorAll('#modal1.modal');
-            var modalInstances = M.Modal.init(mElems);
          });
       </script>
 
+      <!-- Override Default Materialize Styles -->
       <style>
          .input-field input:focus + label {
             color: purple !important;
@@ -53,11 +53,14 @@
          }
       </style>
    </head>
+
    <body>
+      <!-- Start the Session on each page load -->
       <?php
          session_start();
       ?>
 
+      <!-- HTML Code for the Modal Box -->
       <div id="modal1" class="modal">
          <div class="modal-content">
             <h4>Duplicate Device ID Detected</h4>
@@ -65,15 +68,20 @@
             <p>Would you like to overwrite the existing record?</p>
          </div>
          <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect waves-red btn-flat">No</a>
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+            <form method="post">
+               <input type="submit" class="modal-close red btn" name="modal-no" value="No">
+               <input type="submit" class="modal-close green btn" name="modal-yes" value="Yes">
+            </form>
          </div>
       </div>
 
+      <!-- The Main Container for the site -->
       <div class="container">
          <div class="purple">
             <h1>Asset Inventory Form</h1>
          </div>
+
+         <!-- The Form for submitting Assets -->
          <div class="row">
             <form method="post" class="input-field">
                <table>
@@ -116,127 +124,134 @@
                   </tr>
                   <tr>
                      <td>
-                        <input type="submit" name="submit" value="Add Asset">
+                        <input type="submit" name="submit" class="btn purple" value="Add Asset">
                      </td>
                      <td>
-                        <input type="submit" name="clear" value="Clear JSON">
+                        <input type="submit" name="clear" class="btn yellow darken-3" value="Clear JSON">
                      </td>
                   </tr>
                </table>
             </form>
          </div>
 
+         <!-- 3 PHP Functions for checking, submitting, and displaying Assets -->
          <?php
             function checkDeviceID($given_id) {
-               echo "CHECKING DEVICE ID";
                if (array_key_exists("json", $_SESSION)) {
                   $existing_assets = json_decode($_SESSION["json"], true);
                   if ($existing_assets != null) {
-                     foreach ($existing_assets as $asset) {
-                        if ($given_id == $asset["Device ID"]) {
-                           echo "THE ID IS ALREADY IN USE";
+                     for ($i = 0; $i < count($existing_assets); $i++) {
+                        if ($given_id == $existing_assets[$i]["Device ID"]) {
                            echo "<script>var recordDisplay = document.getElementById('modal-record');";
                            echo 'recordDisplay.innerHTML = "';
-                           displayEntry($asset);
+                           displayEntry($existing_assets[$i]);
                            echo '";';
+                           echo "var elem = document.querySelectorAll('#modal1');";
+                           echo "var instance = M.Modal.init(elem, {dismissible: false});
+                           instance[0].open();";
                            echo "</script>";
-                           return false;
+                           return $i;
                         }
                      }
-                     return true;
+                  }
+               }
+            }
+
+            function loadAsset() {
+               if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                  $array = [];
+                  $overwrite = "";
+
+                  if (array_key_exists("clear", $_POST)) {
+                     session_unset();
+                     $_SESSION["json"] = "";
                   } else {
-                     return true;
-                  }
-               } else {
-                  return true;
-               }
-            }
+                     // If yes was chosen or there was no overwrite Modal, add the record
+                     if (! array_key_exists("modal-no", $_POST)) {
+                        if (! array_key_exists("save_record", $_SESSION) || ! array_key_exists("modal-yes", $_POST)) {
+                           $_SESSION["save_record"] = array("Signed"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
+                           "Phone"=>$_POST["phone"],"Device ID"=>$_POST["device_id"],"Category"=>$_POST["category"],
+                           "Description"=>$_POST["description"],"Purchased"=>$_POST["purchased"],"Time"=>time());
 
-            $array = [];
-            $signed_out_to = $location = $phone = $device_id = $category = $description = $purchased = "";
+                           $_SESSION["overwrite"] = checkDeviceID($_POST["device_id"]);
+                        }
 
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-               if (array_key_exists("clear", $_POST)) {
-                  echo "CLEARING SESSION";
-                  session_unset();
-                  $_SESSION["json"] = "";
-               } else {
-                  if (checkDeviceID($_POST["device_id"])) {
-                     $signed_out_to = $_POST["signed_out_to"];
-                     $location = $_POST["location"];
-                     $phone = $_POST["phone"];
-                     $device_id = $_POST["device_id"];
-                     $category = $_POST["category"];
-                     $description = $_POST["description"];
-                     $purchased = $_POST["purchased"];
+                        if (array_key_exists("json", $_SESSION)) {
+                           $array = json_decode($_SESSION["json"], true);
+                        }
 
-                     if (array_key_exists("json", $_SESSION)) {
-                        echo "WE HAVE A SESSION";
-                        $array = json_decode($_SESSION["json"], true);
+                        if ($_SESSION["overwrite"] != "") {
+                           $array[$_SESSION["overwrite"]] = $_SESSION["save_record"];
+                           $_SESSION["overwrite"] = "";
+                        } else {
+                           if (! array_key_exists("modal-yes", $_POST)) {
+                              $array[] = $_SESSION["save_record"];
+                           }
+                        }
+      
+                        $_SESSION["json"] = json_encode($array);
                      }
-
-                     $array[] = array("Signed"=>$signed_out_to,"Location"=>$location,"Phone"=>$phone,
-                                    "Device ID"=>$device_id,"Category"=>$category,"Description"=>$description,
-                                    "Purchased"=>$purchased,"Time"=>time());
-   
-                     $_SESSION["json"] = json_encode($array);
                   }
                }
             }
+
+            function displayEntry($content) {
+               echo "<div class='col s6 m4 l3'>";
+               echo "<h4>";
+               echo $content["Device ID"];
+               echo "</h4>";
+               echo "<ul>";
+               foreach ($content as $key => $value) {
+                  if ($key != "Time") {
+                     if ($key == "Category") {
+                        echo "<li>";
+                        echo $key;
+                        echo ": ";
+                        switch ($value) {
+                           case '0':
+                              echo "computer";
+                              break;
+                           case '1':
+                              echo "peripheral";
+                              break;
+                           case '2':
+                              echo "audio";
+                              break;
+                           case '3':
+                              echo "video";
+                              break;
+                           case '4':
+                              echo "other";
+                              break;
+                        }
+                        echo "</li>";
+                     } else {
+                        echo "<li>";
+                        echo $key;
+                        echo ": ";
+                        echo $value;
+                        echo "</li>";
+                     }
+                  }
+               }
+               echo "</ul>";
+               echo "</div>";
+            }
+
+            loadAsset();
          ?>
 
+         <!-- Output from the Asset Form -->
          <div class="row">
             <h2>The last 5 entries</h2>
             <?php
-               function displayEntry($content) {
-                  echo "INSIDE DISPLAY ENTRY";
-                  echo "<div class='col s6 m4 l3'>";
-                  echo "<h4>";
-                  echo $content["Device ID"];
-                  echo "</h4>";
-                  echo "<ul>";
-                  foreach ($content as $key => $value) {
-                     if ($key != "Time") {
-                        if ($key == "Category") {
-                           echo "<li>";
-                           echo $key;
-                           echo ": ";
-                           switch ($value) {
-                              case '0':
-                                 echo "computer";
-                                 break;
-                              case '1':
-                                 echo "peripheral";
-                                 break;
-                              case '2':
-                                 echo "audio";
-                                 break;
-                              case '3':
-                                 echo "video";
-                                 break;
-                              case '4':
-                                 echo "other";
-                                 break;
-                           }
-                           echo "</li>";
-                        } else {
-                           echo "<li>";
-                           echo $key;
-                           echo ": ";
-                           echo $value;
-                           echo "</li>";
-                        }
-                     }
-                  }
-                  echo "</ul>";
-                  echo "</div>";
-               }
-
                if (array_key_exists("json", $_SESSION) && $_SESSION["json"] != null) {
                   $array = json_decode($_SESSION["json"], true);
-
+                  $display_array = array_column($array, 'Time');
+                  array_multisort($display_array, SORT_DESC, $array);
+                  
                   if (count($array)>4) {
-                     for ($i = count($array)-1; $i >= count($array)-5; $i--) {
+                     for ($i = 0; $i < 5; $i++) {
                         displayEntry($array[$i]);
                      }
                   } else {
@@ -257,6 +272,7 @@
                }
             ?>
          </div>
+      <!-- End of Container -->
       </div>
    </body>
 </html>
