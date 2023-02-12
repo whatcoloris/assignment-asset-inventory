@@ -85,7 +85,7 @@
          <div class="row">
             <form method="post" class="input-field">
                <table>
-                  <th><h2 class="header">Add an Asset</h2></th>
+                  <th colspan="2"><h2 class="header">Add an Asset</h2></th>
                   <tr>
                      <td>Signed Out To:</td>
                      <td><input type="text" name="signed_out_to"></td>
@@ -169,7 +169,7 @@
                      // If yes was chosen or there was no overwrite Modal, add the record
                      if (! array_key_exists("modal-no", $_POST)) {
                         if (! array_key_exists("save_record", $_SESSION) || ! array_key_exists("modal-yes", $_POST)) {
-                           $_SESSION["save_record"] = array("Signed"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
+                           $_SESSION["save_record"] = array("Signed Out To"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
                            "Phone"=>$_POST["phone"],"Device ID"=>$_POST["device_id"],"Category"=>$_POST["category"],
                            "Description"=>$_POST["description"],"Purchased"=>$_POST["purchased"],"Time"=>time());
 
@@ -180,11 +180,11 @@
                            $array = json_decode($_SESSION["json"], true);
                         }
 
-                        if ($_SESSION["overwrite"] != "") {
+                        if ($_SESSION["overwrite"] != "" && array_key_exists("modal-yes", $_POST)) {
                            $array[$_SESSION["overwrite"]] = $_SESSION["save_record"];
                            $_SESSION["overwrite"] = "";
                         } else {
-                           if (! array_key_exists("modal-yes", $_POST)) {
+                           if (! array_key_exists("modal-yes", $_POST) && ! array_key_exists("modal-no", $_POST) && $_SESSION["overwrite"] == "") {
                               $array[] = $_SESSION["save_record"];
                            }
                         }
