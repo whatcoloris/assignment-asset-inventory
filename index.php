@@ -140,8 +140,9 @@
                if (array_key_exists("json", $_SESSION)) {
                   $existing_assets = json_decode($_SESSION["json"], true);
                   if ($existing_assets != null) {
-                     for ($i = 0; $i < count($existing_assets); $i++) {
-                        if ($given_id == $existing_assets[$i]["Device ID"]) {
+                     $size = count($existing_assets);
+                     for ($i = 0; $i < $size; $i++) {
+                        if ($given_id === $existing_assets[$i]["Device ID"]) {
                            echo "<script>var recordDisplay = document.getElementById('modal-record');";
                            echo 'recordDisplay.innerHTML = "';
                            displayEntry($existing_assets[$i]);
@@ -158,7 +159,7 @@
             }
 
             function loadAsset() {
-               if ($_SERVER["REQUEST_METHOD"] == "POST") {
+               if ($_SERVER["REQUEST_METHOD"] === "POST") {
                   $array = [];
                   $overwrite = "";
 
@@ -166,7 +167,6 @@
                      session_unset();
                      $_SESSION["json"] = "";
                   } else {
-                     // If yes was chosen or there was no overwrite Modal, add the record
                      if (! array_key_exists("modal-no", $_POST)) {
                         if (! array_key_exists("save_record", $_SESSION) || ! array_key_exists("modal-yes", $_POST)) {
                            $_SESSION["save_record"] = array("Signed Out To"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
@@ -174,7 +174,7 @@
                            "Description"=>$_POST["description"],"Purchased"=>$_POST["purchased"],"Time"=>time());
 
                            $_SESSION["overwrite"] = checkDeviceID($_POST["device_id"]);
-                           echo "<script>alert('device checked: ".$_SESSION["overwrite"]."');</script>";
+                           //echo "<script>alert('device checked: ".$_SESSION["overwrite"]."');</script>";
                         }
 
                         if (array_key_exists("json", $_SESSION)) {
@@ -184,17 +184,15 @@
                         if ($_SESSION["overwrite"] != "" && array_key_exists("modal-yes", $_POST)) {
                            $array[$_SESSION["overwrite"]] = $_SESSION["save_record"];
                            $_SESSION["overwrite"] = "";
-                           echo "<script>alert('overwritten');</script>";
+                           //echo "<script>alert('overwritten');</script>";
                         } else {
                            if (! array_key_exists("modal-yes", $_POST) && ! array_key_exists("modal-no", $_POST) && $_SESSION["overwrite"] == "") {
-                              echo "<script>alert('record added');</script>";
+                              //echo "<script>alert('record added');</script>";
                               $array[] = $_SESSION["save_record"];
                            }
                         }
       
                         $_SESSION["json"] = json_encode($array);
-                     } else {
-                        echo "<script>alert('modal-no is still there!!!!!');</script>";
                      }
                   }
                }
@@ -210,7 +208,7 @@
                echo "<ul>";
                foreach ($content as $key => $value) {
                   if ($key != "Time") {
-                     if ($key == "Category") {
+                     if ($key === "Category") {
                         echo "<li>";
                         echo $key;
                         echo ": ";
@@ -257,13 +255,14 @@
                   $display_array = array_column($array, 'Time');
                   array_multisort($display_array, SORT_DESC, $array);
                   
-                  if (count($array)>4) {
+                  $size = count($array);
+                  if ($size>4) {
                      for ($i = 0; $i < 5; $i++) {
                         displayEntry($array[$i]);
                      }
                   } else {
-                     foreach ($array as $asset) {
-                        displayEntry($asset);
+                     for ($i = 0; $i < $size; $i++) {
+                        displayEntry($array[$i]);
                      }
                   }
                } else {
