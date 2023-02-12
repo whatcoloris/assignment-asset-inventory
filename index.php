@@ -174,6 +174,7 @@
                            "Description"=>$_POST["description"],"Purchased"=>$_POST["purchased"],"Time"=>time());
 
                            $_SESSION["overwrite"] = checkDeviceID($_POST["device_id"]);
+                           echo "<script>alert('device checked: ".$_SESSION["overwrite"]."');</script>";
                         }
 
                         if (array_key_exists("json", $_SESSION)) {
@@ -183,23 +184,29 @@
                         if ($_SESSION["overwrite"] != "" && array_key_exists("modal-yes", $_POST)) {
                            $array[$_SESSION["overwrite"]] = $_SESSION["save_record"];
                            $_SESSION["overwrite"] = "";
+                           echo "<script>alert('overwritten');</script>";
                         } else {
                            if (! array_key_exists("modal-yes", $_POST) && ! array_key_exists("modal-no", $_POST) && $_SESSION["overwrite"] == "") {
+                              echo "<script>alert('record added');</script>";
                               $array[] = $_SESSION["save_record"];
                            }
                         }
       
                         $_SESSION["json"] = json_encode($array);
+                     } else {
+                        echo "<script>alert('modal-no is still there!!!!!');</script>";
                      }
                   }
                }
             }
 
             function displayEntry($content) {
-               echo "<div class='col s6 m4 l3'>";
-               echo "<h4>";
+               echo "<div class='col s12 m6 l4 entry'>";
+               echo "<div class='card'>";
+               echo "<div class='card-content'>";
+               echo "<span class='card-title'>";
                echo $content["Device ID"];
-               echo "</h4>";
+               echo "</span>";
                echo "<ul>";
                foreach ($content as $key => $value) {
                   if ($key != "Time") {
@@ -235,7 +242,7 @@
                   }
                }
                echo "</ul>";
-               echo "</div>";
+               echo "</div></div></div>";
             }
 
             loadAsset();
