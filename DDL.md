@@ -25,7 +25,6 @@ We can see (at least) 7 Columns will be necessary.
 5) The fifth Column, "Category" will be Numeric (TINYINT), with each of the possible categories (computer | peripheral | audio | video | other) assigned a persistent number representing each.
 6) The sixth Column, "Description" will be a String.
 7) The seventh Column, "Purchased" will be a Date format.
-8) In addition to the Card Catalog information given, since we will need to be able to retrieve the 5 most recent entries in the Database, we will include a final Column "Added_TS" with the TIMESTAMP data type, which will keep track of when an entry was added.
 
 ## Pertinent DDL Commands
 
@@ -34,7 +33,7 @@ We can see (at least) 7 Columns will be necessary.
 ```
 CREATE DATABASE AssetInventory;
 USE AssetInventory;
-CREATE TABLE Assets (Signed_Out_To VARCHAR(255), Location VARCHAR(255), Phone VARCHAR(255), Device_ID VARCHAR(255), Category TINYINT, Description VARCHAR(255), Purchased DATE, Added_TS TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (Device_ID));
+CREATE TABLE Assets (Signed_Out_To VARCHAR(255), Location VARCHAR(255), Phone VARCHAR(255), Device_ID VARCHAR(255), Category TINYINT, Description VARCHAR(255), Purchased DATE, PRIMARY KEY (Device_ID));
 ```
 
 The end of the line creating the table defines "Device_ID" as the Primary Key for the database, satisfying our "bonus points" requirement that the "Device_ID" for each card be unique. MySQL will return an error if we attempt to provide a "Device_ID" which is already in the database.
@@ -47,10 +46,4 @@ I've left the other fields able to be NULL since there was not information given
 INSERT INTO Assets (Signed_Out_To, Location, Phone, Device_ID, Category, Description, Purchased) VALUES ('Research Foundation', 'Albany, NY', '269-317-5393', 'BM123456', 4, 'An assignment', '2023-02-07');
 ```
 
-Here is an example INSERT command which adds a single Asset into the database. This will automatically check to see if the "Device_ID" field is unique and will throw an error if not. Note that it will also automatically create a timestamp.
-
-### Retrieving the last 5 entries
-
-```
-SELECT * FROM Assets ORDER BY Added_TS DESC LIMIT 5;
-```
+Here is an example INSERT command which adds a single Asset into the database, assuming that Asset has been converted from JSON into a simple array already. This will automatically check to see if the "Device_ID" field is unique and will throw an error if not. This error should be able to be avoided by the PHP function which does not allow duplicate Device IDs to be used.
