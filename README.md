@@ -47,3 +47,10 @@ The form.
 - (Bonus points) Show a warning message if the user enters a duplicate device ID. The warning should display the existing record and ask the user if they want to overwrite it. This can be generated server-side or client-side.
 
 This exercise should be done in a single file. Make no assumptions about available resources except for PHP and a modern browser.
+
+## Notes about the site
+
+For the styling, Materialize CSS Framework has been used, but it is not being updated and does not appear to follow accessibility guidelines very well or at all. In addition Materialize uses bloated SASS files and Javascript which is unnecessary for such a simple site.
+
+Per the instructions there is not much form validation, stripping/trimming of entries, or the usual data processing especially key to secure PHP.
+

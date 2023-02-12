@@ -19,37 +19,48 @@
 
       <!-- Override Default Materialize Styles -->
       <style>
+         body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #646464;
+         }
          .input-field input:focus + label {
-            color: purple !important;
+            color: #74519B !important;
          }
          .row .input-field input:focus {
-            border-bottom: 1px solid purple !important;
-            box-shadow: 0 1px 0 0 purple !important
+            border-bottom: 1px solid #74519B !important;
+            box-shadow: 0 1px 0 0 #74519B !important
          }
          ul.dropdown-content.select-dropdown li span {
-            color: purple; /* no need for !important :) */
+            color: #74519B; /* no need for !important :) */
          }
          .datepicker-date-display {
-            background-color: purple;
+            background-color: #74519B;
          }
          .datepicker-table td.is-selected {
-            background-color: purple;
+            background-color: #74519B;
          }
          .datepicker-table td.is-today {
-            color: purple;
+            color: #74519B;
          }
          .datepicker-table td.is-selected.is-today {
-            background-color: purple;
+            background-color: #74519B;
             color: white;
          }
          .datepicker-cancel {
-            color: purple;
+            color: #74519B;
          }
          .datepicker-done {
-            color: purple;
+            color: #74519B;
+         }
+         .title {
+            color: white;
+            background: linear-gradient(to bottom, #62438A, #74519B)
          }
          .header {
-            background: linear-gradient(to bottom, orange, yellow)
+            color: #52377A;
+         }
+         .asset-btn {
+            background-color: #74519B;
          }
       </style>
    </head>
@@ -77,18 +88,18 @@
 
       <!-- The Main Container for the site -->
       <div class="container">
-         <div class="purple">
+         <div class="title">
             <h1>Asset Inventory Form</h1>
          </div>
 
          <!-- The Form for submitting Assets -->
          <div class="row">
-            <form method="post" class="input-field">
+            <form method="post" class="input-field flow-text">
                <table>
                   <th colspan="2"><h2 class="header">Add an Asset</h2></th>
                   <tr>
                      <td>Signed Out To:</td>
-                     <td><input type="text" name="signed_out_to"></td>
+                     <td><input type="text" name="signed_out_to" aria-label="Signed Out To"></td>
                   </tr>
                   <tr>
                      <td>Location (City, State):</td>
@@ -124,7 +135,7 @@
                   </tr>
                   <tr>
                      <td>
-                        <input type="submit" name="submit" class="btn purple" value="Add Asset">
+                        <input type="submit" name="submit" class="btn asset-btn" value="Add Asset">
                      </td>
                      <td>
                         <input type="submit" name="clear" class="btn yellow darken-3" value="Clear JSON">

@@ -37,7 +37,7 @@ USE AssetInventory;
 CREATE TABLE Assets (Signed_Out_To VARCHAR(255), Location VARCHAR(255), Phone VARCHAR(255), Device_ID VARCHAR(255), Category TINYINT, Description VARCHAR(255), Purchased DATE, Added_TS TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (Device_ID));
 ```
 
-The end of the line creating the table defines "Device_ID" as the Primary Key for the database, satisfying our "bonus points" requirement that the "Device_ID" for each card be unique, at least from the . MySQL will return an error if we attempt to provide a "Device_ID" which is already in the database.
+The end of the line creating the table defines "Device_ID" as the Primary Key for the database, satisfying our "bonus points" requirement that the "Device_ID" for each card be unique. MySQL will return an error if we attempt to provide a "Device_ID" which is already in the database.
 
 I've left the other fields able to be NULL since there was not information given as to whether each assets requires all fields to be filled.
 
