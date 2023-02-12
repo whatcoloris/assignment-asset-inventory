@@ -146,7 +146,7 @@
                   </tr>
                   <tr>
                      <td>Purchased:</td>
-                     <td><input type="text" class="datepicker" name="purchased" role="input" aria-label="Purchased"></td>
+                     <td><input type="text" name="purchased" role="input" aria-label="Purchased"></td>
                   </tr>
                   <tr>
                      <td>
