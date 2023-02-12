@@ -54,3 +54,4 @@ For the styling, Materialize CSS Framework has been used, but it is not being up
 
 Per the instructions there is not much form validation, stripping/trimming of entries, or the usual data processing especially key to secure PHP.
 
+An accessibility issue I struggled with was maintaining the ability to navigate the Modal Dialog about overwriting records with the keyboard. This would require further research and debugging.

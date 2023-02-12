@@ -17,12 +17,15 @@
          });
       </script>
 
-      <!-- Override Default Materialize Styles -->
+      <!-- CSS for overriding Materialize CSS and Custom CSS -->
       <style>
+         /* Setting Font Family and Default Text Color */
          body {
             font-family: Arial, Helvetica, sans-serif;
             color: #646464;
          }
+
+         /* Overriding Materialize CSS */
          .input-field input:focus + label {
             color: #74519B !important;
          }
@@ -52,15 +55,26 @@
          .datepicker-done {
             color: #74519B;
          }
+
+         /* Custom CSS */
          .title {
             color: white;
-            background: linear-gradient(to bottom, #62438A, #74519B)
+            background: linear-gradient(to bottom, #62438A, #74519B);
+         }
+         #form-title {
+            text-align: center;
          }
          .header {
             color: #52377A;
          }
          .asset-btn {
             background-color: #74519B;
+         }
+         .asset-btn:hover {
+            background-color: #EBB93F;
+         }
+         .asset-btn:focus {
+            background-color: #EBB93F;
          }
       </style>
    </head>
@@ -72,13 +86,14 @@
       ?>
 
       <!-- HTML Code for the Modal Box -->
-      <div id="modal1" class="modal">
+      <div id="modal1" class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
          <div class="modal-content">
-            <h4>Duplicate Device ID Detected</h4>
+            <h4 id="modal-title">Duplicate Device ID Detected</h4>
+            <p>Would you like to overwrite this record?</p>
             <div id="modal-record"></div>
-            <p>Would you like to overwrite the existing record?</p>
          </div>
          <div class="modal-footer">
+            <!-- Send User overwrite response via POST to PHP -->
             <form method="post">
                <input type="submit" class="modal-close red btn" name="modal-no" value="No">
                <input type="submit" class="modal-close green btn" name="modal-yes" value="Yes">
@@ -88,35 +103,35 @@
 
       <!-- The Main Container for the site -->
       <div class="container">
-         <div class="title">
-            <h1>Asset Inventory Form</h1>
+         <div class="title" role="banner">
+            <h1 id="form-title" aria-label="Asset Inventory Form">Asset Inventory Form</h1>
          </div>
 
          <!-- The Form for submitting Assets -->
          <div class="row">
-            <form method="post" class="input-field flow-text">
+            <form method="post" class="input-field flow-text" aria-labelledby="form-header">
                <table>
-                  <th colspan="2"><h2 class="header">Add an Asset</h2></th>
+                  <th colspan="2"><h3 class="header" id="form-header" aria-label="Add an Asset">Add an Asset</h3></th>
                   <tr>
-                     <td>Signed Out To:</td>
-                     <td><input type="text" name="signed_out_to" aria-label="Signed Out To"></td>
+                     <td>Signed out to:</td>
+                     <td><input type="text" name="signed_out_to"  role="input" aria-label="Signed out to"></td>
                   </tr>
                   <tr>
                      <td>Location (City, State):</td>
-                     <td><input type="text" name="location"></td>
+                     <td><input type="text" name="location" role="input" aria-label="Location"></td>
                   </tr>
                   <tr>
                      <td>Phone (xxx-xxx-xxxx):</td>
-                     <td><input type="text" name="phone"></td>
+                     <td><input type="text" name="phone" role="input" aria-label="Phone"></td>
                   </tr>
                   <tr>
                      <td>Device ID:</td>
-                     <td><input type="text" name="device_id"></td>
+                     <td><input type="text" name="device_id" role="input" aria-label="Device ID"></td>
                   </tr>
                   <tr>
                      <td>Category:</td>
                      <td>
-                        <select name="category">
+                        <select name="category" role="listbox" aria-label="Category">
                               <option value="0">computer</option>
                               <option value="1">peripheral</option>
                               <option value="2">audio</option>
@@ -127,18 +142,18 @@
                   </tr>
                   <tr>
                      <td>Description:</td>
-                     <td><textarea name="description" rows="5" cols="40"></textarea></td>
+                     <td><textarea name="description" rows="5" cols="40" role="textarea" aria-label="Description"></textarea></td>
                   </tr>
                   <tr>
                      <td>Purchased:</td>
-                     <td><input type="text" class="datepicker" name="purchased"></td>
+                     <td><input type="text" class="datepicker" name="purchased" role="input" aria-label="Purchased"></td>
                   </tr>
                   <tr>
                      <td>
-                        <input type="submit" name="submit" class="btn asset-btn" value="Add Asset">
+                        <input type="submit" name="submit" class="btn asset-btn" value="Add Asset" role="button" aria-label="Add Asset">
                      </td>
                      <td>
-                        <input type="submit" name="clear" class="btn yellow darken-3" value="Clear JSON">
+                        <input type="submit" name="clear" class="btn yellow darken-1" value="Clear JSON" role="button" aria-label="Clear JSON">
                      </td>
                   </tr>
                </table>
@@ -159,7 +174,7 @@
                            displayEntry($existing_assets[$i]);
                            echo '";';
                            echo "var elem = document.querySelectorAll('#modal1');";
-                           echo "var instance = M.Modal.init(elem, {dismissible: false});
+                           echo "var instance = M.Modal.init(elem, {dismissible: true});
                            instance[0].open();";
                            echo "</script>";
                            return $i;
@@ -180,7 +195,7 @@
                   } else {
                      if (! array_key_exists("modal-no", $_POST)) {
                         if (! array_key_exists("save_record", $_SESSION) || ! array_key_exists("modal-yes", $_POST)) {
-                           $_SESSION["save_record"] = array("Signed Out To"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
+                           $_SESSION["save_record"] = array("Signed out to"=>$_POST["signed_out_to"],"Location"=>$_POST["location"],
                            "Phone"=>$_POST["phone"],"Device ID"=>$_POST["device_id"],"Category"=>$_POST["category"],
                            "Description"=>$_POST["description"],"Purchased"=>$_POST["purchased"],"Time"=>time());
 
@@ -214,35 +229,48 @@
                echo "<div class='card'>";
                echo "<div class='card-content'>";
                echo "<span class='card-title'>";
-               echo $content["Device ID"];
+               if ($content["Device ID"] != null) {
+                  echo $content["Device ID"];
+               } else {
+                  echo "&nbsp;";
+               }
                echo "</span>";
-               echo "<ul>";
+               echo "<ul aria-labelledby='card-title'>";
                foreach ($content as $key => $value) {
                   if ($key != "Time") {
                      if ($key === "Category") {
-                        echo "<li>";
-                        echo $key;
-                        echo ": ";
                         switch ($value) {
                            case '0':
-                              echo "computer";
+                              $string_value = "computer";
                               break;
                            case '1':
-                              echo "peripheral";
+                              $string_value = "peripheral";
                               break;
                            case '2':
-                              echo "audio";
+                              $string_value = "audio";
                               break;
                            case '3':
-                              echo "video";
+                              $string_value = "video";
                               break;
                            case '4':
-                              echo "other";
+                              $string_value = "other";
                               break;
                         }
+                        echo "<li aria-label='";
+                        echo $key;
+                        echo ": ";
+                        echo $string_value;
+                        echo "'>";
+                        echo $key;
+                        echo ": ";
+                        echo $string_value;
                         echo "</li>";
                      } else {
-                        echo "<li>";
+                        echo "<li aria-label='";
+                        echo $key;
+                        echo ": ";
+                        echo $value;
+                        echo "'>";
                         echo $key;
                         echo ": ";
                         echo $value;
@@ -258,8 +286,8 @@
          ?>
 
          <!-- Output from the Asset Form -->
-         <div class="row">
-            <h2>The last 5 entries</h2>
+         <div class="row" aria-label="The 5 most recent assets added">
+            <h3>The 5 most recent assets added:</h3>
             <?php
                if (array_key_exists("json", $_SESSION) && $_SESSION["json"] != null) {
                   $array = json_decode($_SESSION["json"], true);
@@ -281,8 +309,8 @@
                }
             ?>
          </div>
-         <div>
-            <h3>Var Dump:</h3>
+         <div class="row" aria-label="The output of PHP's var_dump function on the JSON file of Assets">
+            <h4>Var Dump:</h4>
             <?php
                if (array_key_exists("json", $_SESSION)) {
                   var_dump($_SESSION["json"]);
